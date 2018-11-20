@@ -17,6 +17,7 @@ import base64
 from lxml import etree
 import time
 import codecs
+import logging
 
 from oaipmh import common, metadata, validation, error
 from oaipmh.datestamp import datestamp_to_datetime, datetime_to_datestamp
@@ -377,12 +378,14 @@ def buildHeader(header_node, namespaces):
     return common.Header(header_node, identifier, datestamp, setspec, deleted)
 
 def ResumptionListGenerator(firstBatch, nextBatch):
+    logger = logging.getLogger(__name__).getChild('ResumptionListGenerator')
     result, token = firstBatch()
     while 1:
         for item in result:
             yield item
         if token is None:
             break
+        logger.info('Next resumption token: {}'.format(token))
         result, token = nextBatch(token)
 
 def retrieveFromUrlWaiting(request,
