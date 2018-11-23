@@ -64,7 +64,10 @@ class BaseClient(common.OAIPMH):
 
     def handleVerb(self, verb, kw):
         # validate kw first
-        validation.validateArguments(verb, kw)
+        if 'resumptionToken' in kw:
+            validation.validateResumptionArguments(verb, kw)
+        else:
+            validation.validateArguments(verb, kw)
         # encode datetimes as datestamps
         from_ = kw.get('from_')
         if from_ is not None:

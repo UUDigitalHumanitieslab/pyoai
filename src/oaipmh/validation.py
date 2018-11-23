@@ -5,6 +5,7 @@ class BadArgumentError(Exception):
 
 def validate(argspec, dictionary):
     exclusive = None
+    optional = False
     for arg_name, arg_type in list(argspec.items()):
         if arg_type == 'exclusive':
             exclusive = arg_name
@@ -13,21 +14,23 @@ def validate(argspec, dictionary):
         if not key in argspec:
             msg = "Unknown argument: %s" % key
             raise BadArgumentError(msg)
+        elif argspec[key] == 'optional':
+            optional = True
     # first investigate if we have exclusive argument
-    if exclusive in dictionary:
-        if len(dictionary) > 1:
-            msg = ("Exclusive argument %s is used but other "
-                   "arguments found." % exclusive)
-            raise BadArgumentError(msg)
+    if optional and (exclusive is not None):
+        print(dictionary)
+        msg = ("Exclusive argument %s is used but other "
+               "arguments found." % exclusive)
+        raise BadArgumentError(msg)
         return
-    # if not exclusive, check for required
-    for arg_name, arg_type in list(argspec.items()): 
+    # check for required
+    for arg_name, arg_type in list(argspec.items()):
         if arg_type == 'required':
             msg = "Argument required but not found: %s" % arg_name
             if not arg_name in dictionary:
                 raise BadArgumentError(msg)
     return
-        
+
 class ValidationSpec(object):
     GetRecord = {
         'identifier':'required',
@@ -37,7 +40,7 @@ class ValidationSpec(object):
         'identifier':'required',
         'metadataPrefix':'required'
         }
-    
+
     Identify = {
         }
 
@@ -71,7 +74,7 @@ class ResumptionValidationSpec(ValidationSpec):
         'set':'optional',
         'resumptionToken':'exclusive',
         }
-    
+
     ListRecords = {
         'from_':'optional',
         'until':'optional',
@@ -89,4 +92,4 @@ def validateArguments(verb, kw):
 
 def validateResumptionArguments(verb, kw):
     validate(getattr(ResumptionValidationSpec, verb), kw)
-    
+
