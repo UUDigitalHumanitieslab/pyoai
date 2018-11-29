@@ -18,7 +18,6 @@ def validate(argspec, dictionary):
             optional = True
     # first investigate if we have exclusive argument
     if optional and (exclusive is not None):
-        print(dictionary)
         msg = ("Exclusive argument %s is used but other "
                "arguments found." % exclusive)
         raise BadArgumentError(msg)
